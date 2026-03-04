@@ -48,15 +48,14 @@ PinchTab exposes a plain HTTP API. MCP clients communicate over stdin/stdout usi
 ### Install PinchTab
 
 ```bash
-# macOS / Linux
+# macOS / Linux — recommended
 curl -fsSL https://pinchtab.com/install.sh | bash
-
-# npm
-npm install -g pinchtab
 
 # Docker
 docker run -d -p 9867:9867 ghcr.io/pinchtab/pinchtab:latest
 ```
+
+> **Note:** `npm install -g pinchtab` does not reliably install the binary on all platforms. Use the install script or Docker instead.
 
 > Full PinchTab docs: [pinchtab.com/docs](https://pinchtab.com/docs)
 
@@ -86,6 +85,8 @@ pinchtab
 # With an auth token (recommended)
 BRIDGE_TOKEN=my-secret pinchtab
 ```
+
+> **If the MCP tool returns `Connection failed`**, PinchTab is not running. Start it as above and retry.
 
 ### 3. Configure your client
 
@@ -173,7 +174,7 @@ A single `pinchtab` tool is registered. All operations are dispatched via the `a
 | `click` | Click an element | `ref` |
 | `type` | Type text into a focused element | `ref`, `text` |
 | `fill` | Clear and fill an input | `ref`, `text` |
-| `press` | Press a key | `ref`, `key` (e.g. `Enter`, `Tab`) |
+| `press` | Press a key | `ref`, `key` (e.g. `Enter`, `Tab`) — for form submission prefer `click` on the submit button |
 | `hover` | Hover over an element | `ref` |
 | `scroll` | Scroll the page | `ref?`, `scrollY` |
 | `select` | Select a dropdown option | `ref`, `value` |
@@ -240,6 +241,25 @@ pinchtab-mcp/
 ├── package.json
 └── tsconfig.json
 ```
+
+---
+
+## Troubleshooting
+
+**`Connection failed: fetch failed. Is PinchTab running at http://localhost:9867?`**
+The PinchTab binary is not running. Start it with `pinchtab` in a separate terminal, then retry.
+
+**`npm install -g pinchtab` installs but `pinchtab` command is not found**
+The npm package does not install the Go binary on all platforms. Use the install script instead:
+```bash
+curl -fsSL https://pinchtab.com/install.sh | bash
+```
+
+**`press Enter` doesn't submit a form / page doesn't navigate**
+Some sites handle form submission via click events on the submit button rather than keyboard events on the input. Use `click` on the submit button ref instead of `press Enter` on the input.
+
+**Search input shows `"queryEnter"` as its value**
+This happens when `press` appends literally to the field value. Use `fill` to set the value cleanly, then `click` the submit button.
 
 ---
 
